@@ -4,3 +4,4 @@ nbactions.xml
 .idea
 *.iml
 *.xml
+/bin

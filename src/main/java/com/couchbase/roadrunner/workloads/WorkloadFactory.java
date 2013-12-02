@@ -27,20 +27,21 @@ package com.couchbase.roadrunner.workloads;
  */
 public class WorkloadFactory {
 
-  /**
-   * Returns a workload based on its identifier.
-   *
-   * @param identifier
-   * @return the workload
-   */
-  public static Class<? extends Workload> getWorkload(String identifier) {
-    if(identifier.equals("getset")) {
-      return GetSetWorkload.class;
-    } else if(identifier.equals("getscas")) {
-      return GetsCasWorkload.class;
-    }
+    /**
+     * Returns a workload based on its identifier.
+     * 
+     * @param identifier
+     * @return the workload
+     */
+    public static Class<? extends Workload> getWorkload(String identifier) {
+        if (identifier.equals("getset")) {
+            return GetSetWorkload.class;
+        } else if (identifier.equals("getscas")) {
+            return GetsCasWorkload.class;
+        } else if (identifier.equals("getsetview")) {
+            return GetSetViewWorkload.class;
+        }
 
-    throw new IllegalArgumentException("Could not find Workload: "
-      + identifier);
-  }
+        throw new IllegalArgumentException("Could not find Workload: " + identifier);
+    }
 }

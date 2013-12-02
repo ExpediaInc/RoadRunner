@@ -34,104 +34,104 @@ import java.util.*;
 /**
  * The GetsCasWorkload resembles a use case where a document is added, and then
  * consequently loaded, updated and stored with CAS values.
- *
- * It uses the "add" command for storing, and then fetching the doc with
- * "gets" and saving it back with "cas".
+ * 
+ * It uses the "add" command for storing, and then fetching the doc with "gets"
+ * and saving it back with "cas".
  */
 public class GetsCasWorkload extends Workload {
 
-  /** Amount of documents to add/gets/cas. */
-  private final long amount;
+    /** Amount of documents to add/gets/cas. */
+    private final long amount;
 
-  /** Ratio between add and gets/cas calls. */
-  private final int ratio;
+    /** Ratio between add and gets/cas calls. */
+    private final int ratio;
 
-  /** Ratio to sample statistics data. */
-  private final int sampling;
+    /** Ratio to sample statistics data. */
+    private final int sampling;
 
-  public GetsCasWorkload(CouchbaseClient client, String name, long amount,
-    int ratio, int sampling, int ramp, DocumentFactory documentFactory) {
-    super(client, name, ramp, documentFactory);
-    this.amount = amount;
-    this.ratio = ratio;
-    this.sampling = 100 / sampling;
-  }
+    public GetsCasWorkload(CouchbaseClient client, String name, long amount, String ratio, int sampling, int ramp,
+            DocumentFactory documentFactory) {
+        super(client, name, ramp, documentFactory);
+        this.amount = amount;
+        this.ratio = Integer.parseInt(ratio);
+        this.sampling = 100 / sampling;
+    }
 
-  @Override
-  public void run() {
-    Thread.currentThread().setName(getWorkloadName());
-    CouchbaseClient client = getClient();
-    startTimer();
+    @Override
+    public void run() {
+        Thread.currentThread().setName(getWorkloadName());
+        CouchbaseClient client = getClient();
+        startTimer();
 
-    int samplingCount = 0;
-    for (long i=0;i < amount;i++) {
-      String key = randomKey();
-      try {
-        addWorkload(key, getDocument());
-        if(++samplingCount == sampling) {
-          for(int r=0;r<ratio;r++) {
-            long cas = getsWorkloadWithMeasurement(key);
-            casWorkloadWithMeasurement(key, cas, getDocument());
-          }
-          samplingCount = 0;
-        } else {
-          for(int r=0;r<ratio;r++) {
-            long cas = getsWorkload(key);
-            casWorkload(key, cas,  getDocument());
-          }
+        int samplingCount = 0;
+        for (long i = 0; i < amount; i++) {
+            String key = randomKey();
+            try {
+                addWorkload(key, getDocument());
+                if (++samplingCount == sampling) {
+                    for (int r = 0; r < ratio; r++) {
+                        long cas = getsWorkloadWithMeasurement(key);
+                        casWorkloadWithMeasurement(key, cas, getDocument());
+                    }
+                    samplingCount = 0;
+                } else {
+                    for (int r = 0; r < ratio; r++) {
+                        long cas = getsWorkload(key);
+                        casWorkload(key, cas, getDocument());
+                    }
+                }
+            } catch (Exception ex) {
+                getLogger().info("Problem while gets/cas key: " + ex.getMessage());
+            }
         }
-      } catch (Exception ex) {
-        getLogger().info("Problem while gets/cas key: " + ex.getMessage());
-      }
+
+        endTimer();
     }
 
-    endTimer();
-  }
-
-  private String randomString() {
-    int length = 10000;
-    StringBuffer outputBuffer = new StringBuffer(length);
-    for (int i = 0; i < length; i++){
-      outputBuffer.append(" ");
+    private String randomString() {
+        int length = 10000;
+        StringBuffer outputBuffer = new StringBuffer(length);
+        for (int i = 0; i < length; i++) {
+            outputBuffer.append(" ");
+        }
+        return outputBuffer.toString();
     }
-    return outputBuffer.toString();
-  }
 
-  private void addWorkload(String key, SampleDocument doc) throws Exception {
-    CouchbaseClient client = getClient();
-    client.add(key, 0, doc).get();
-    incrTotalOps();
-  }
-
-  private long getsWorkloadWithMeasurement(String key) {
-    Stopwatch watch = new Stopwatch().start();
-    long cas = getsWorkload(key);
-    watch.stop();
-    addMeasure("gets", watch);
-    return cas;
-  }
-
-  private void casWorkloadWithMeasurement(String key, long cas, SampleDocument doc) {
-    Stopwatch watch = new Stopwatch().start();
-    casWorkload(key, cas, doc);
-    watch.stop();
-    addMeasure("cas", watch);
-  }
-
-  private long getsWorkload(String key) {
-    CouchbaseClient client = getClient();
-    CASValue<Object> casResponse = client.gets(key);
-    incrTotalOps();
-    return casResponse.getCas();
-  }
-
-  private void casWorkload(String key, long cas, SampleDocument doc) {
-    CouchbaseClient client = getClient();
-    CASResponse response = client.cas(key, cas, doc);
-    if(response != CASResponse.OK) {
-      getLogger().info("Could not store with cas for key: " + key);
+    private void addWorkload(String key, SampleDocument doc) throws Exception {
+        CouchbaseClient client = getClient();
+        client.add(key, 0, doc).get();
+        incrTotalOps();
     }
-    incrTotalOps();
-  }
+
+    private long getsWorkloadWithMeasurement(String key) {
+        Stopwatch watch = new Stopwatch().start();
+        long cas = getsWorkload(key);
+        watch.stop();
+        addMeasure("gets", watch);
+        return cas;
+    }
+
+    private void casWorkloadWithMeasurement(String key, long cas, SampleDocument doc) {
+        Stopwatch watch = new Stopwatch().start();
+        casWorkload(key, cas, doc);
+        watch.stop();
+        addMeasure("cas", watch);
+    }
+
+    private long getsWorkload(String key) {
+        CouchbaseClient client = getClient();
+        CASValue<Object> casResponse = client.gets(key);
+        incrTotalOps();
+        return casResponse.getCas();
+    }
+
+    private void casWorkload(String key, long cas, SampleDocument doc) {
+        CouchbaseClient client = getClient();
+        CASResponse response = client.cas(key, cas, doc);
+        if (response != CASResponse.OK) {
+            getLogger().info("Could not store with cas for key: " + key);
+        }
+        incrTotalOps();
+    }
 
 }

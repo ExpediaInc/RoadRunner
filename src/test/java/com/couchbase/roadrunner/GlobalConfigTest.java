@@ -11,6 +11,7 @@ public class GlobalConfigTest
     private static int NUM_CLIENTS = 55;
     private static int NUM_DOCS = 1234;
     private static int RATIO_INT = 76;
+    private static String RATIO_STRING = "76";
     private static int SAMPLING_RATE = 99;
     private static int RAMP_TIME = 13;
     private static int DOC_SIZE = 5678;
@@ -58,7 +59,7 @@ public class GlobalConfigTest
         Assert.assertEquals(config.getNumThreads(), NUM_THREADS, "number of threads");
         Assert.assertEquals(config.getNumClients(), NUM_CLIENTS, "number of clients");
         Assert.assertEquals(config.getNumDocs(), NUM_DOCS, "number of docs");
-        Assert.assertEquals(config.getRatio(), RATIO_INT, "ratio");
+        Assert.assertEquals(config.getRatio(), RATIO_STRING, "ratio");
         Assert.assertEquals(config.getSampling(), SAMPLING_RATE, "sampling");
         Assert.assertEquals(config.getWorkload(), WORKLOAD, "workload");
         Assert.assertEquals(config.getRamp(), RAMP_TIME, "ramp");

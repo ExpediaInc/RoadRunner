@@ -43,103 +43,100 @@ import com.google.common.base.Stopwatch;
  */
 final class WorkloadDispatcher {
 
-  /** Configure a reusable logger. */
-  static final Logger LOGGER =
-    LoggerFactory.getLogger(WorkloadDispatcher.class.getName());
+    /** Configure a reusable logger. */
+    static final Logger LOGGER = LoggerFactory.getLogger(WorkloadDispatcher.class.getName());
 
-  /** The global configuration object. */
-  private final GlobalConfig config;
+    /** The global configuration object. */
+    private final GlobalConfig config;
 
-  /** Links to the clientHandlers for each CouchabaseClient. */
-  private List<ClientHandler> clientHandlers;
+    /** Links to the clientHandlers for each CouchabaseClient. */
+    private List<ClientHandler> clientHandlers;
 
-  Map<String, List<Stopwatch>> mergedMeasures;
+    Map<String, List<Stopwatch>> mergedMeasures;
 
-  /**
-   * Create the WorkloadDispatcher object.
-   *
-   * @param config The global configuration object with all settings.
-   */
-  public WorkloadDispatcher(final GlobalConfig config) {
-    this.config = config;
-    this.clientHandlers = new ArrayList<ClientHandler>();
-    this.mergedMeasures = new HashMap<String, List<Stopwatch>>();
-  }
-
-  /**
-   * Initialize and run the ClientHandlers.
-   */
-  public void init() throws Exception {
-    long docsPerHandler = (long)Math.floor(
-      config.getNumDocs()/config.getNumClients());
-    for(int i=0;i<config.getNumClients();i++) {
-      clientHandlers.add(new ClientHandler(config, "ClientHandler-"+(i+1),
-        docsPerHandler));
+    /**
+     * Create the WorkloadDispatcher object.
+     * 
+     * @param config
+     *            The global configuration object with all settings.
+     */
+    public WorkloadDispatcher(final GlobalConfig config) {
+        this.config = config;
+        this.clientHandlers = new ArrayList<ClientHandler>();
+        this.mergedMeasures = new HashMap<String, List<Stopwatch>>();
     }
-  }
 
-  /**
-   * Distribute and run the workload against the ClientHandlers.
-   */
-  public void dispatchWorkload() throws Exception {
-    DocumentFactory documentFactory;
-    if (config.getFilename() == null)
-      documentFactory = new FixedSizeRandomDocumentFactory(config.getDocumentSize());
-    else
-      documentFactory = new SingleFileDocumentFactory(config.getFilename());
-
-    Class<? extends Workload> clazz =
-      WorkloadFactory.getWorkload(config.getWorkload());
-    for(ClientHandler handler : clientHandlers) {
-      handler.executeWorkload(clazz, documentFactory);
-    }
-    for(ClientHandler handler : clientHandlers) {
-      handler.cleanup();
-    }
-  }
-
-  public void prepareMeasures() {
-    storeMeasures();
-  }
-
-  private void storeMeasures() {
-    for(ClientHandler handler : clientHandlers) {
-      Map<String, List<Stopwatch>> measures = handler.getMeasures();
-      for (Map.Entry<String, List<Stopwatch>> entry : measures.entrySet()) {
-        if(mergedMeasures.containsKey(entry.getKey())) {
-          mergedMeasures.get(entry.getKey()).addAll(entry.getValue());
-        } else {
-          mergedMeasures.put(entry.getKey(), entry.getValue());
+    /**
+     * Initialize and run the ClientHandlers.
+     */
+    public void init() throws Exception {
+        long docsPerHandler = (long) Math.floor(config.getNumDocs() / config.getNumClients());
+        for (int i = 0; i < config.getNumClients(); i++) {
+            clientHandlers.add(new ClientHandler(config, "ClientHandler-" + (i + 1), docsPerHandler));
         }
-      }
     }
-  }
 
-  public Map<String, List<Stopwatch>> getMeasures() {
-    return mergedMeasures;
-  }
+    /**
+     * Distribute and run the workload against the ClientHandlers.
+     */
+    public void dispatchWorkload() throws Exception {
+        DocumentFactory documentFactory;
+        if (config.getFilename() == null)
+            documentFactory = new FixedSizeRandomDocumentFactory(config.getDocumentSize());
+        else
+            documentFactory = new SingleFileDocumentFactory(config.getFilename());
 
-  public long getTotalOps() {
-    long totalOps = 0;
-    for (ClientHandler handler : clientHandlers) {
-      totalOps += handler.getTotalOps();
+        Class<? extends Workload> clazz = WorkloadFactory.getWorkload(config.getWorkload());
+        for (ClientHandler handler : clientHandlers) {
+            handler.executeWorkload(clazz, documentFactory);
+        }
+        for (ClientHandler handler : clientHandlers) {
+            handler.cleanup();
+        }
     }
-    return totalOps;
-  }
 
-  public long getMeasuredOps() {
-    long measuredOps = 0;
-    for (ClientHandler handler : clientHandlers) {
-      measuredOps += handler.getMeasuredOps();
+    public void prepareMeasures() {
+        storeMeasures();
     }
-    return measuredOps;
-  }
 
-  public List<Stopwatch> getThreadElapsed() {
-    List<Stopwatch> elapsed = new ArrayList<Stopwatch>();
-    for(ClientHandler handler : clientHandlers) {
-      elapsed.addAll(handler.getThreadElapsed());
+    private void storeMeasures() {
+        for (ClientHandler handler : clientHandlers) {
+            Map<String, List<Stopwatch>> measures = handler.getMeasures();
+            for (Map.Entry<String, List<Stopwatch>> entry : measures.entrySet()) {
+                if (mergedMeasures.containsKey(entry.getKey())) {
+                    mergedMeasures.get(entry.getKey()).addAll(entry.getValue());
+                } else {
+                    mergedMeasures.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
     }
-    return elapsed;
-  }
+
+    public Map<String, List<Stopwatch>> getMeasures() {
+        return mergedMeasures;
+    }
+
+    public long getTotalOps() {
+        long totalOps = 0;
+        for (ClientHandler handler : clientHandlers) {
+            totalOps += handler.getTotalOps();
+        }
+        return totalOps;
+    }
+
+    public long getMeasuredOps() {
+        long measuredOps = 0;
+        for (ClientHandler handler : clientHandlers) {
+            measuredOps += handler.getMeasuredOps();
+        }
+        return measuredOps;
+    }
+
+    public List<Stopwatch> getThreadElapsed() {
+        List<Stopwatch> elapsed = new ArrayList<Stopwatch>();
+        for (ClientHandler handler : clientHandlers) {
+            elapsed.addAll(handler.getThreadElapsed());
+        }
+        return elapsed;
+    }
 }
