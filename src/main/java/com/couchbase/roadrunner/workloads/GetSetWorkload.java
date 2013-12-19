@@ -85,7 +85,7 @@ public class GetSetWorkload extends Workload {
     }
 
     private void setWorkload(String key) throws Exception {
-        getClient().set(key, 0, getDocument()).get();
+        getClient().set(key, 0, getDocument().getJson()).get();
         incrTotalOps();
     }
 

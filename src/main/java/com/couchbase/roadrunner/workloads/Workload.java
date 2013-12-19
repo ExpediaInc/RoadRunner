@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -164,6 +163,7 @@ public abstract class Workload implements Runnable {
     }
 
     static interface SampleDocument {
+        String getJson();
     }
 
     /**
@@ -175,12 +175,17 @@ public abstract class Workload implements Runnable {
         public final byte[] payload;
 
         public RandomDocument(int payloadSize) {
-            byte[] bytes = new byte[payloadSize];
-            new Random().nextBytes(bytes);
-            this.payload = bytes;
+            //byte[] bytes = new byte[payloadSize];
+            //new Random().nextBytes(bytes);
+            this.payload = null;
+        }
+        
+        public String getJson() {
+            return "{\"email\":\"test@test.com\",\"displayName\":\"testName\",\"secret\":" + "\"" + UUID.randomUUID().toString() + "\"}";
+            
         }
     }
-
+    
     /**
      * Reads a file from disk and uses the contents as the document to be
      * stored. Each line of the file is trimmed and concatenated down to a
@@ -203,6 +208,10 @@ public abstract class Workload implements Runnable {
                 sb.append(line.trim());
             }
             payload = sb.toString().getBytes();
+        }
+        
+        public String getJson() {
+            return null;
         }
     }
 

@@ -48,8 +48,8 @@ public class GetSetViewWorkload extends Workload {
     /** Ratio to sample statistics data. */
     private final int sampling;
     
-    private static final String DESIGN_DOC = "auth_design";
-    private static final String VIEW = "auth_view";
+    private static final String DESIGN_DOC = "Clients";
+    private static final String VIEW = "allClients";
 
     public GetSetViewWorkload(CouchbaseClient client, String name, long amount, String ratio, int sampling, int ramp,
             DocumentFactory documentFactory) {
@@ -133,7 +133,7 @@ public class GetSetViewWorkload extends Workload {
     }
 
     private void setWorkload(String key) throws Exception {
-        getClient().set(key, 0, getDocument()).get();
+        getClient().set(key, 0, getDocument().getJson()).get();
         incrTotalOps();
     }
 
@@ -159,8 +159,10 @@ public class GetSetViewWorkload extends Workload {
     private void viewWorkload() throws Exception {
         View view = getClient().getView(DESIGN_DOC, VIEW);
         Query query = new Query();
+        query.setIncludeDocs(true);
         query.setStale(Stale.OK);
         getClient().query(view, query);
+        
         incrTotalOps();
     }
 }
