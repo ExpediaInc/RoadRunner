@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.couchbase.client.CouchbaseClient;
+import com.couchbase.roadrunner.Client;
 import com.google.common.base.Charsets;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.Files;
@@ -46,7 +47,7 @@ public abstract class Workload implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(Workload.class.getName());
 
     /** Reference to the CouchbaseClient */
-    private final CouchbaseClient client;
+    private final Client client;
 
     /** Name of the Workload */
     private final String workloadName;
@@ -68,7 +69,7 @@ public abstract class Workload implements Runnable {
 
     private final DocumentFactory documentFactory;
 
-    public Workload(final CouchbaseClient client, final String name, final int ramp,
+    public Workload(final Client client, final String name, final int ramp,
             final DocumentFactory documentFactory) {
         this.client = client;
         this.workloadName = name;
@@ -136,7 +137,7 @@ public abstract class Workload implements Runnable {
     /**
      * @return the client
      */
-    public CouchbaseClient getClient() {
+    public Client getClient() {
         return client;
     }
 

@@ -31,7 +31,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.couchbase.client.CouchbaseClient;
 import com.couchbase.roadrunner.workloads.Workload;
 import com.couchbase.roadrunner.workloads.Workload.DocumentFactory;
 import com.google.common.base.Stopwatch;
@@ -49,7 +48,7 @@ class ClientHandler {
     private final ThreadPoolExecutor executor;
 
     /** Its own CouchbaseClient object. */
-    private final CouchbaseClient client;
+    private final Client client;
 
     /** The identifier of this ClientHandler. */
     private final String id;
@@ -73,7 +72,14 @@ class ClientHandler {
         this.config = config;
         this.id = id;
         this.numDocs = numDocs;
-        this.client = new CouchbaseClient(config.getNodes(), config.getBucket(), config.getPassword());
+        if (config.getClientName().equals("couchbase")) {
+            MyCouchbaseClient cb = new MyCouchbaseClient(config);
+            this.client = (Client) cb;
+        } else {
+            MyCouchbaseClient cb = new MyCouchbaseClient(config);
+            this.client = (Client) cb;
+        }
+    
         this.executor = new ThreadPoolExecutor(config.getNumThreads(), config.getNumThreads(), 1, TimeUnit.HOURS,
                 new ArrayBlockingQueue<Runnable>(config.getNumThreads(), true),
                 new ThreadPoolExecutor.CallerRunsPolicy());
@@ -90,7 +96,7 @@ class ClientHandler {
      */
     public void executeWorkload(Class<? extends Workload> clazz, DocumentFactory documentFactory) throws Exception {
         long docsPerThread = (long) Math.floor(numDocs / config.getNumThreads());
-        Constructor<? extends Workload> constructor = clazz.getConstructor(CouchbaseClient.class, String.class,
+        Constructor<? extends Workload> constructor = clazz.getConstructor(Client.class, String.class,
                 long.class, String.class, int.class, int.class, DocumentFactory.class);
         
         for (int i = 0; i < config.getNumThreads(); i++) {

@@ -22,14 +22,8 @@
 
 package com.couchbase.roadrunner.workloads;
 
-import com.couchbase.client.CouchbaseClient;
-import com.couchbase.roadrunner.workloads.Workload.DocumentFactory;
+import com.couchbase.roadrunner.Client;
 import com.google.common.base.Stopwatch;
-import net.spy.memcached.CASResponse;
-import net.spy.memcached.CASValue;
-
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * The GetsCasWorkload resembles a use case where a document is added, and then
@@ -49,7 +43,7 @@ public class GetsCasWorkload extends Workload {
     /** Ratio to sample statistics data. */
     private final int sampling;
 
-    public GetsCasWorkload(CouchbaseClient client, String name, long amount, String ratio, int sampling, int ramp,
+    public GetsCasWorkload(Client client, String name, long amount, String ratio, int sampling, int ramp,
             DocumentFactory documentFactory) {
         super(client, name, ramp, documentFactory);
         this.amount = amount;
@@ -60,7 +54,7 @@ public class GetsCasWorkload extends Workload {
     @Override
     public void run() {
         Thread.currentThread().setName(getWorkloadName());
-        CouchbaseClient client = getClient();
+        Client client = getClient();
         startTimer();
 
         int samplingCount = 0;
@@ -98,8 +92,8 @@ public class GetsCasWorkload extends Workload {
     }
 
     private void addWorkload(String key, SampleDocument doc) throws Exception {
-        CouchbaseClient client = getClient();
-        client.add(key, 0, doc).get();
+        Client client = getClient();
+        client.set(key, doc);
         incrTotalOps();
     }
 
@@ -119,19 +113,20 @@ public class GetsCasWorkload extends Workload {
     }
 
     private long getsWorkload(String key) {
-        CouchbaseClient client = getClient();
-        CASValue<Object> casResponse = client.gets(key);
-        incrTotalOps();
-        return casResponse.getCas();
+        //Client client = getClient();
+        //CASValue<Object> casResponse = client.gets(key);
+        //incrTotalOps();
+        //return casResponse.getCas();
+        return 0l;
     }
 
     private void casWorkload(String key, long cas, SampleDocument doc) {
-        CouchbaseClient client = getClient();
-        CASResponse response = client.cas(key, cas, doc);
+        //Client client = getClient();
+        /*CASResponse response = client.cas(key, cas, doc);
         if (response != CASResponse.OK) {
             getLogger().info("Could not store with cas for key: " + key);
         }
-        incrTotalOps();
+        incrTotalOps();*/
     }
 
 }

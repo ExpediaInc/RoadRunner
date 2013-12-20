@@ -30,6 +30,7 @@ import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.protocol.views.Query;
 import com.couchbase.client.protocol.views.Stale;
 import com.couchbase.client.protocol.views.View;
+import com.couchbase.roadrunner.Client;
 import com.google.common.base.Stopwatch;
 
 public class GetSetViewWorkload extends Workload {
@@ -50,8 +51,9 @@ public class GetSetViewWorkload extends Workload {
     
     private static final String DESIGN_DOC = "Clients";
     private static final String VIEW = "allClients";
+    String[] args = new String[] {DESIGN_DOC, VIEW};
 
-    public GetSetViewWorkload(CouchbaseClient client, String name, long amount, String ratio, int sampling, int ramp,
+    public GetSetViewWorkload(Client client, String name, long amount, String ratio, int sampling, int ramp,
             DocumentFactory documentFactory) {
         super(client, name, ramp, documentFactory);
         this.amount = amount;
@@ -133,7 +135,7 @@ public class GetSetViewWorkload extends Workload {
     }
 
     private void setWorkload(String key) throws Exception {
-        getClient().set(key, 0, getDocument().getJson()).get();
+        getClient().set(key, getDocument().getJson());
         incrTotalOps();
     }
 
@@ -157,12 +159,13 @@ public class GetSetViewWorkload extends Workload {
     }
 
     private void viewWorkload() throws Exception {
-        View view = getClient().getView(DESIGN_DOC, VIEW);
+        /*View view = getClient().getView(DESIGN_DOC, VIEW);
         Query query = new Query();
         query.setIncludeDocs(true);
         query.setStale(Stale.OK);
-        getClient().query(view, query);
+        getClient().query(view, query);*/
         
+        getClient().getCollection(args);
         incrTotalOps();
     }
 }

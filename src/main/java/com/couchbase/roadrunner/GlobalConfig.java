@@ -232,6 +232,10 @@ final class GlobalConfig {
         return filename;
     }
 
+    public String getClientName() {
+        return "couchbase";
+    }
+    
     @Override
     public String toString() {
         return "GlobalConfig{" + "nodes=" + nodes + ", bucket=" + bucket + ", password=" + password + ", numThreads="
