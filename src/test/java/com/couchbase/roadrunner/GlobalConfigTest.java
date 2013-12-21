@@ -16,7 +16,7 @@ public class GlobalConfigTest
     private static int RAMP_TIME = 13;
     private static int DOC_SIZE = 5678;
 
-    private static final String NODE = "1.2.3.4";
+    private static final String NODE = "http://1.2.3.4:8091/pools";
     private static final String BUCKET = "testBucket";
     private static final String PASSWORD = "testPassword";
     private static final String THREADS = "" + NUM_THREADS;
@@ -29,7 +29,7 @@ public class GlobalConfigTest
     private static final String SIZE = "" + DOC_SIZE;
     private static final String FILENAME = "./file.json";
 
-    private static final String NODE_POOLS = "http://" + NODE + ":8091/pools";
+    private static final String NODE_POOLS = NODE; //"http://" + NODE + ":8091/pools";
 
     @Test
     public void testShortOptions() throws ParseException

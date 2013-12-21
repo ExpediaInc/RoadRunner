@@ -41,7 +41,7 @@ final class GlobalConfig {
     /** Configure a reusable logger. */
     static final Logger LOGGER = LoggerFactory.getLogger(GlobalConfig.class.getName());
 
-    public static final String DEFAULT_NODES = "127.0.0.1";
+    public static final String DEFAULT_NODES = "http://127.0.0.1:8091/pools";
     public static final String DEFAULT_BUCKET = "default";
     public static final String DEFAULT_PASSWORD = "";
     public static final String DEFAULT_NUM_THREADS = "1";
@@ -145,7 +145,8 @@ final class GlobalConfig {
         List<URI> converted = new ArrayList<URI>();
         try {
             for (String node : splitNodes) {
-                converted.add(new URI("http://" + node + ":8091/pools"));
+                //converted.add(new URI("http://" + node + ":8091/pools"));
+                converted.add(new URI(node));
             }
         } catch (Exception ex) {
             LOGGER.error("Could not parse node list: " + ex);
