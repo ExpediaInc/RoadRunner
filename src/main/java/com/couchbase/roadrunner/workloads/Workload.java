@@ -182,8 +182,13 @@ public abstract class Workload implements Runnable {
         }
         
         public String getJson() {
-            return "{\"email\":\"test@test.com\",\"displayName\":\"testName\",\"secret\":" + "\"" + UUID.randomUUID().toString() + "\"}";
-            
+            String jsonDocument =
+                    "{\"email\":\"" + UUID.randomUUID().toString() + "_test@test.com\"," +
+                            "\"displayName\":\"testName\"," +
+                            "\"clientId\":" + "\"" + UUID.randomUUID().toString() + "\"," +
+                            "\"secret\":" + "\"" + UUID.randomUUID().toString() + "\"}";
+
+            return jsonDocument;
         }
     }
     
