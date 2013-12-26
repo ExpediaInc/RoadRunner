@@ -31,6 +31,8 @@ import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 /**
  * A container class for the user-provided options through the command line.
  * 
@@ -40,6 +42,9 @@ final class GlobalConfig {
 
     /** Configure a reusable logger. */
     static final Logger LOGGER = LoggerFactory.getLogger(GlobalConfig.class.getName());
+
+    public static final String COUCHBASE_CLIENT_NAME = "couchbase";
+    public static final String MONGODB_CLIENT_NAME = "mongo";
 
     public static final String DEFAULT_NODES = "http://127.0.0.1:8091/pools";
     public static final String DEFAULT_BUCKET = "default";
@@ -52,6 +57,7 @@ final class GlobalConfig {
     public static final String DEFAULT_WORKLOAD = "getset";
     public static final String DEFAULT_RAMP = "0";
     public static final String DEFAULT_SIZE = "1000";
+    public static final String DEFAULT_CLIENT_NAME = COUCHBASE_CLIENT_NAME;
 
     private final List<URI> nodes;
     private final String bucket;
@@ -65,6 +71,7 @@ final class GlobalConfig {
     private final int ramp;
     private final int size;
     private final String filename;
+    private final String clientName;
 
     /**
      * Create the GlobalConfig.
@@ -80,7 +87,7 @@ final class GlobalConfig {
      * @param numClients
      *            The number of CouchbaseClients.
      */
-    private GlobalConfig(List<URI> nodes, String bucket, String password, int numThreads, int numClients,
+    private GlobalConfig(String clientName, List<URI> nodes, String bucket, String password, int numThreads, int numClients,
             long numDocs, String ratio, int sampling, String workload, int ramp, int size, String filename) {
         this.nodes = Collections.unmodifiableList(nodes);
         this.bucket = bucket;
@@ -94,6 +101,7 @@ final class GlobalConfig {
         this.ramp = ramp;
         this.size = size;
         this.filename = filename;
+        this.clientName = clientName;
     }
 
     /**
@@ -107,6 +115,8 @@ final class GlobalConfig {
     public static GlobalConfig fromCommandLine(final CommandLine args) {
         String nodes = args.hasOption(RoadRunner.OPT_NODES) ? args.getOptionValue(RoadRunner.OPT_NODES)
                 : DEFAULT_NODES;
+        String clientName = args.hasOption(RoadRunner.OPT_CLIENTNAME) ? args.getOptionValue(RoadRunner.OPT_CLIENTNAME)
+                : DEFAULT_CLIENT_NAME;
         String bucket = args.hasOption(RoadRunner.OPT_BUCKET) ? args.getOptionValue(RoadRunner.OPT_BUCKET)
                 : DEFAULT_BUCKET;
         String password = args.hasOption(RoadRunner.OPT_PASSWORD) ? args.getOptionValue(RoadRunner.OPT_PASSWORD)
@@ -128,7 +138,7 @@ final class GlobalConfig {
                 : DEFAULT_SIZE;
         String filename = args.hasOption(RoadRunner.OPT_FILENAME) ? args.getOptionValue(RoadRunner.OPT_FILENAME)
                 : null;
-        return new GlobalConfig(prepareNodeList(nodes), bucket, password, Integer.parseInt(numThreads),
+        return new GlobalConfig(clientName, prepareNodeList(nodes), bucket, password, Integer.parseInt(numThreads),
                 Integer.parseInt(numClients), Long.parseLong(numDocs), ratio,
                 Integer.parseInt(sampling), workload, Integer.parseInt(ramp), Integer.parseInt(size), filename);
     }
@@ -234,12 +244,12 @@ final class GlobalConfig {
     }
 
     public String getClientName() {
-        return "couchbase";
+        return this.clientName;
     }
     
     @Override
     public String toString() {
-        return "GlobalConfig{" + "nodes=" + nodes + ", bucket=" + bucket + ", password=" + password + ", numThreads="
+        return "GlobalConfig{" + "clientName=" + clientName + ", nodes=" + nodes + ", bucket=" + bucket + ", password=" + password + ", numThreads="
                 + numThreads + ", numClients=" + numClients + ", numDocs=" + numDocs + ", ratio=" + ratio
                 + ", sampling=" + sampling + ", workload=" + workload + ", ramp=" + ramp + ", doc-size=" + size
                 + ", data-filename=" + filename + '}';

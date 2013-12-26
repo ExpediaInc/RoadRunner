@@ -69,6 +69,7 @@ public final class RoadRunner {
     public static final String OPT_SAMPLING = "sampling";
     public static final String OPT_DOC_SIZE = "doc-size";
     public static final String OPT_FILENAME = "data-filename";
+    public static final String OPT_CLIENTNAME = "client-name";
     /** Configure a reusable logger. */
     private static final Logger LOGGER = LoggerFactory.getLogger(RoadRunner.class.getName());
 
@@ -218,6 +219,7 @@ public final class RoadRunner {
                 + "\")");
         options.addOption("h", OPT_HELP, false, "Print this help message.");
         options.addOption("f", OPT_FILENAME, true, "filename containing the data to use in the test");
+        options.addOption("cn", OPT_CLIENTNAME, true, "Client to use: \"couchbase\" for Couchbase or \"mongo\" for MongoDB");
         return options;
     }
 }

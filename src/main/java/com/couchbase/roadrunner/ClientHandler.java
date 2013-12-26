@@ -72,7 +72,11 @@ class ClientHandler {
         this.config = config;
         this.id = id;
         this.numDocs = numDocs;
-        if (config.getClientName().equals("couchbase")) {
+        if (config.getClientName().equals(GlobalConfig.MONGODB_CLIENT_NAME)) {
+            MyMongoClient mongoClient = new MyMongoClient(config);
+            this.client = (Client) mongoClient;
+        }
+        else if (config.getClientName().equals(GlobalConfig.COUCHBASE_CLIENT_NAME)) {
             MyCouchbaseClient cb = new MyCouchbaseClient(config);
             this.client = (Client) cb;
         } else {
