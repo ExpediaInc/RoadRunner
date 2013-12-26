@@ -1,17 +1,19 @@
 package com.couchbase.roadrunner;
 
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
+import com.mongodb.util.JSON;
+
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyMongoClient implements Client {
 
@@ -36,24 +38,28 @@ public class MyMongoClient implements Client {
 
     @Override
     public Object get(String key) {
-        BasicDBObject query = new BasicDBObject("id", key);
-
-        DBCursor cursor = coll.find(query);
-        DBObject obj = null;
-        try {
-           if (cursor.hasNext()) {
-               obj = cursor.next();
-           }
-        } finally {
-           cursor.close();
-        }
+        BasicDBObject query = new BasicDBObject("_id", key);
+        DBObject obj = coll.findOne(query, null, ReadPreference.nearest());
         return obj;
     }
 
     @Override
     public boolean set(String key, Object obj) {
-        // TODO Auto-generated method stub
-        return false;
+        DBObject dbObject;
+
+        if (obj instanceof String) {
+            dbObject = (DBObject) JSON.parse((String) obj);
+            dbObject.put("_id", key);
+        }
+        else if (obj instanceof DBObject) {
+            dbObject = (DBObject)obj;
+        }
+        else {
+            return false;
+        }
+
+        coll.insert(dbObject);
+        return true;
     }
 
     @Override
