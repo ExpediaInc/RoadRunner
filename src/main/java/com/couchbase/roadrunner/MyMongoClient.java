@@ -58,7 +58,9 @@ public class MyMongoClient implements Client {
             return false;
         }
 
-        coll.insert(dbObject);
+        // This will insert if the object doesn't exist, or it will update if it exists.
+        // The functionality is needed for the GetSetViewWorkload
+        coll.save(dbObject);
         return true;
     }
 
