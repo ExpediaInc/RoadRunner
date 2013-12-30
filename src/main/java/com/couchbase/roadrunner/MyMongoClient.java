@@ -34,6 +34,7 @@ public class MyMongoClient implements Client {
         
         db = mongoClient.getDB(config.getBucket());
         coll = db.getCollection(config.getBucket());
+        coll.setReadPreference(ReadPreference.nearest());
     }
 
     @Override
