@@ -40,7 +40,8 @@ public class MyMongoClient implements Client {
     @Override
     public Object get(String key) {
         BasicDBObject query = new BasicDBObject("_id", key);
-        DBObject obj = coll.findOne(query, null, ReadPreference.nearest());
+        // The default ReadPreference for the collection is set in the constructor
+        DBObject obj = coll.findOne(query);
         return obj;
     }
 
